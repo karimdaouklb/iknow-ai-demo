@@ -1,0 +1,254 @@
+# iKnow AI - Predefined Questions & Answers
+
+This document lists all the predefined responses in the iKnow AI demo. When the AI is in **Offline Mode** (or when API fails), these responses are used.
+
+---
+
+## 🌤️ Weather
+
+**Questions:**
+- "Weather in New York"
+- "What's the weather?"
+- "Temperature"
+- "Forecast"
+- "Rain"
+- "Sunny"
+- "Cloud"
+
+**Answer:**
+> Currently, it's partly cloudy with a temperature of 24°C (75°F). Expect light winds from the southwest at 10 km/h. Would you like the forecast for tomorrow?
+
+**Alternative Answers:**
+- "It's 24°C and partly cloudy right now. Humidity is at 65% with light winds. Perfect weather for a walk!"
+- "Weather update: 24°C, partly cloudy conditions. No rain expected in the next few hours. ☁️"
+
+---
+
+## 💱 Currency Conversion
+
+**Questions:**
+- "Convert $50 to EUR"
+- "USD to Euro"
+- "Exchange rate"
+- "Convert"
+- "EUR"
+- "USD"
+
+**Answer:**
+> 💱 Exchange Rate:
+> $50 USD = €46.25 EUR
+> 
+> Rate: 1 USD = 0.925 EUR
+> Last updated: Just now
+
+---
+
+## 🍎 Health & Fitness Tips
+
+**Questions:**
+- "Health tips"
+- "Exercise tips"
+- "How to stay healthy?"
+- "Health"
+- "Tip"
+- "Exercise"
+- "Diet"
+- "Water"
+- "Sleep"
+- "Fitness"
+
+**Answers (Random):**
+
+1. > 🍎 Health Tip:
+   > Regular physical activity can improve your muscle strength and boost your endurance. Exercise delivers oxygen and nutrients to your tissues and helps your cardiovascular system work more efficiently.
+
+2. > 💧 Stay hydrated! Drinking 8 glasses of water daily helps maintain body temperature, lubricate joints, and remove waste.
+
+3. > 😴 Sleep matters: Adults need 7-9 hours of sleep. Good sleep improves memory, mood, and overall health.
+
+4. > 🥗 Eat the rainbow! Different colored fruits and vegetables provide different nutrients. Variety is key to balanced nutrition.
+
+---
+
+## 🌍 Geography & Capitals
+
+### France
+**Questions:** "Capital of France", "France"
+
+**Answer:**
+> 🌍 The capital of France is Paris. It's the country's largest city and serves as the major European hub of finance, diplomacy, commerce, fashion, science, and arts.
+
+### United Kingdom
+**Questions:** "Capital of UK", "Britain", "England", "UK"
+
+**Answer:**
+> 🌍 The capital of the United Kingdom is London. It's one of the world's most important global cities and a major financial center.
+
+### Germany
+**Questions:** "Capital of Germany", "Germany"
+
+**Answer:**
+> 🌍 The capital of Germany is Berlin. It's known for its art scene, modern landmarks, and turbulent 20th-century history.
+
+### Japan
+**Questions:** "Capital of Japan", "Japan"
+
+**Answer:**
+> 🌍 The capital of Japan is Tokyo. It's the world's most populous metropolis and a center for technology and innovation.
+
+### General Geography
+**Questions:** "Capital", "Country", "City"
+
+**Answer:**
+> 🌍 I can help with geography questions! Ask me about specific countries and their capitals.
+
+---
+
+## 👋 Greetings
+
+**Questions:** "Hello", "Hi", "Hey", "Good morning", "Good afternoon", "Good evening"
+
+**Answers (Random):**
+
+1. > Hello! 👋 How can I assist you today? I can help with general knowledge, calculations, translations, weather, and much more!
+
+2. > Hi there! 🌟 I'm iKnow, ready to help with your questions. What would you like to know?
+
+3. > Hey! 👋 Great to hear from you. I'm here to help with information, tips, and answers. What can I do for you?
+
+---
+
+## 🕐 Time & Date
+
+**Questions:** "What time is it?", "Current time", "Date today", "Time", "Date", "Day", "Month", "Year"
+
+**Answer:**
+> 🕐 Current time is [current time].
+> 📅 Date: [current date]
+
+---
+
+## 🙏 Thanks
+
+**Questions:** "Thank you", "Thanks", "Appreciate"
+
+**Answers (Random):**
+
+1. > You're very welcome! 😊 I'm here whenever you need assistance. Have a great day!
+
+2. > My pleasure! 🌟 Feel free to ask if you need anything else.
+
+3. > Anytime! 👍 I'm happy I could help. Come back anytime you have questions!
+
+---
+
+## 😂 Jokes
+
+**Questions:** "Tell me a joke", "Something funny", "Make me laugh", "Joke", "Funny", "Laugh", "Humor"
+
+**Answers (Random):**
+
+1. > Why don't scientists trust atoms? Because they make up everything! 😄
+
+2. > Why did the scarecrow win an award? He was outstanding in his field! 🌾
+
+3. > Why don't eggs tell jokes? They'd crack each other up! 🥚
+
+4. > What do you call a fake noodle? An impasta! 🍝
+
+---
+
+## 🤖 About iKnow
+
+**Questions:** "What's your name?", "Who are you?", "What are you?"
+
+**Answer:**
+> I'm iKnow, your AI assistant! 🤖 I can help answer questions, provide information, give tips, and chat about various topics. No signup required - I'm completely free to use!
+
+---
+
+## ❓ Help
+
+**Questions:** "Help", "Assist", "Support", "What can you do?"
+
+**Answer:**
+> 🤝 I can help you with:
+> 
+> • Weather updates
+> • General knowledge
+> • Health & fitness tips
+> • Currency conversion
+> • Time & date info
+> • Geography questions
+> • Quick calculations
+> • And much more!
+> 
+> Just ask me anything!
+
+---
+
+## 👋 Goodbye
+
+**Questions:** "Bye", "Goodbye", "See you", "Later"
+
+**Answer:**
+> Goodbye! 👋 Thanks for chatting with me. Have a wonderful day and come back anytime you need help!
+
+---
+
+## 🧮 Math / Calculation
+
+**Questions:** "Calculate", "Math", "Plus", "Minus", "Times", "Divided", "Square", "Sqrt"
+
+**Answer:**
+> 🧮 I can help with calculations! For complex math, try asking step by step. For example: 'What is 15% of 200?' or 'Convert 5 feet to meters.'
+
+---
+
+## ❓ Fallback (Unknown Questions)
+
+**Any question not matching above:**
+
+**Answers (Random):**
+
+1. > That's an interesting question! While I'm processing that, did you know I can also help with weather updates, currency conversion, health tips, and general knowledge? Feel free to ask anything specific!
+
+2. > Great question! 🎯 I can help with that. I specialize in weather, health tips, general knowledge, and more. Could you tell me more about what you'd like to know?
+
+3. > I'm on it! 💡 In the meantime, feel free to ask me about the weather, health tips, or geography. I'm here to help!
+
+4. > Interesting! 🤔 I have information on various topics like weather, health, travel, and general knowledge. What would you like to explore?
+
+---
+
+## 🔑 Keyword Matching Summary
+
+The system checks for these keywords in your message:
+
+| Category | Keywords |
+|----------|----------|
+| Weather | weather, temperature, forecast, rain, sunny, cloud |
+| Currency | convert, exchange, usd, eur, dollar, euro, gbp, pound |
+| Health | health, tip, exercise, diet, water, sleep, fitness |
+| Geography | capital, country, city, france, paris, london, uk, germany, japan |
+| Greetings | hello, hi, hey, good morning, good afternoon, good evening |
+| Time | time, date, day, month, year |
+| Thanks | thank, thanks, appreciate |
+| Jokes | joke, funny, laugh, humor |
+| Identity | name, who are you, what are you |
+| Help | help, assist, support, what can you do |
+| Goodbye | bye, goodbye, see you, later |
+| Math | calculate, math, plus, minus, times, divided, square, sqrt |
+
+---
+
+## 💡 Usage Tips
+
+1. **Case insensitive:** "Hello" and "hello" work the same
+2. **Partial matches:** "weather in London" triggers weather response
+3. **Multiple keywords:** First match wins
+4. **USSD/SMS:** Same responses, but truncated for character limits in USSD
+
+---
+
+*Note: When AI Mode is enabled with a working API (Kimi), these predefined responses are replaced with real AI-generated answers.*

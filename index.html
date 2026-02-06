@@ -1,0 +1,2253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>iKnow - AI Chatbot Multi-Channel Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.6);
+            border-radius: 3px;
+        }
+
+        /* Phone Frame */
+        .phone-frame {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 0 12px #1e293b,
+                0 0 0 14px #334155;
+            transition: transform 0.3s ease;
+        }
+
+        /* Screen Transitions */
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Message Animations */
+        .message-enter {
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* USSD Specific */
+        .ussd-text {
+            font-family: 'Roboto Mono', monospace;
+            background: #1a1a1a;
+            color: #e5e5e5;
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Pulse Animation for Recording */
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        .pulse-ring.recording {
+            animation: pulse-ring 1s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            background: rgba(239, 68, 68, 0.4);
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        /* Typing Indicator */
+        .typing-dot {
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* SMS Bubble */
+        .sms-bubble {
+            position: relative;
+            max-width: 80%;
+        }
+
+        .sms-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+        }
+
+        .sms-sent::after {
+            right: -8px;
+            border-left-color: #6366f1;
+            border-bottom-color: #6366f1;
+        }
+
+        .sms-received::after {
+            left: -8px;
+            border-right-color: #334155;
+            border-bottom-color: #334155;
+        }
+
+        /* Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Channel Buttons */
+        .channel-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .channel-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .channel-btn.active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Voice Button Animations */
+        .voice-btn {
+            transition: all 0.3s ease;
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .voice-btn:active {
+            transform: scale(0.95);
+        }
+
+        .voice-btn.listening {
+            animation: pulse-red 1.5s ease-in-out infinite;
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        @keyframes pulse-red {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+        }
+
+        /* Speaking Indicator */
+        .speaking-indicator {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .speaking-bar {
+            width: 3px;
+            height: 15px;
+            background: #10b981;
+            border-radius: 2px;
+            animation: sound-wave 0.5s ease-in-out infinite;
+        }
+
+        .speaking-bar:nth-child(2) { animation-delay: 0.1s; }
+        .speaking-bar:nth-child(3) { animation-delay: 0.2s; }
+        .speaking-bar:nth-child(4) { animation-delay: 0.3s; }
+
+        @keyframes sound-wave {
+            0%, 100% { height: 5px; }
+            50% { height: 20px; }
+        }
+
+        /* Mute Button */
+        .mute-btn {
+            transition: all 0.2s ease;
+        }
+
+        .mute-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mute-btn.muted {
+            color: #ef4444;
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        
+        /* Large screens - default */
+        .phone-container-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Tablet and smaller (max-width: 768px) */
+        @media (max-width: 768px) {
+            .phone-frame {
+                transform: scale(0.9);
+                transform-origin: top center;
+            }
+            
+            h1 {
+                font-size: 2rem !important;
+            }
+            
+            .channel-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .channel-btn span {
+                display: none;
+            }
+            
+            .channel-btn i {
+                width: 1.25rem;
+                height: 1.25rem;
+            }
+        }
+
+        /* Mobile (max-width: 480px) */
+        @media (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+            }
+            
+            .phone-frame {
+                transform: scale(0.75);
+                transform-origin: top center;
+                max-width: 320px;
+                height: 650px;
+            }
+            
+            h1 {
+                font-size: 1.75rem !important;
+            }
+            
+            .text-gray-400 {
+                font-size: 0.875rem;
+            }
+            
+            /* Header adjustments */
+            #ai-mode-label {
+                font-size: 0.75rem;
+            }
+            
+            /* Channel buttons - icon only */
+            .channel-btn {
+                padding: 0.5rem;
+                min-width: 40px;
+                min-height: 40px;
+            }
+            
+            .channel-btn span {
+                display: none;
+            }
+            
+            /* Footer adjustments */
+            .text-center.text-gray-500 {
+                font-size: 0.75rem;
+                padding: 0 1rem;
+            }
+        }
+
+        /* Small mobile (max-width: 360px) */
+        @media (max-width: 360px) {
+            .phone-frame {
+                transform: scale(0.65);
+                max-width: 280px;
+                height: 580px;
+            }
+            
+            h1 {
+                font-size: 1.5rem !important;
+            }
+        }
+
+        /* Very small screens (max-width: 320px) */
+        @media (max-width: 320px) {
+            .phone-frame {
+                transform: scale(0.55);
+                max-width: 260px;
+                height: 520px;
+            }
+        }
+
+        /* Landscape mode on mobile */
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                padding: 0.25rem;
+            }
+            
+            .phone-frame {
+                transform: scale(0.6);
+                height: 500px;
+            }
+            
+            /* Hide decorative elements */
+            .fixed.inset-0.overflow-hidden {
+                display: none;
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) {
+            .channel-btn:hover {
+                transform: none;
+            }
+            
+            .voice-btn:hover {
+                transform: none;
+            }
+        }
+
+        /* High DPI / Retina displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .phone-frame {
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6),
+                    0 0 0 12px #1e293b,
+                    0 0 0 14px #334155;
+            }
+        }
+
+        /* Prevent text selection on mobile */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Smooth momentum scrolling on iOS */
+        .screen {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Fix for iPhone notch/safe areas */
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+                padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            }
+        }
+
+        /* Prevent pull-to-refresh on mobile */
+        body {
+            overscroll-behavior-y: none;
+        }
+
+        /* Better input focus on mobile */
+        input, textarea {
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        @media (max-width: 480px) {
+            input, textarea {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-white min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 relative overflow-x-hidden">
+
+    <!-- Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div
+            class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse">
+        </div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"
+            style="animation-delay: 2s"></div>
+    </div>
+
+    <!-- Header -->
+    <div class="text-center mb-4 sm:mb-8 z-10 px-2">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-1 sm:mb-2 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            iKnow AI
+        </h1>
+        <p class="text-gray-400 text-sm sm:text-lg">Universal Access Intelligence • Demo Environment</p>
+        <p class="text-gray-500 text-xs sm:text-sm mt-1">🎙️ Voice Enabled • 100% Free</p>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-2 sm:p-4" onclick="if(event.target === this) closeSettings()">
+        <div class="bg-gray-900 rounded-2xl p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto border border-gray-700" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-white">Settings</h2>
+                <button onclick="closeSettings()" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- AI Mode Toggle -->
+            <div class="mb-6">
+                <label class="flex items-center justify-between cursor-pointer">
+                    <span class="text-gray-300">Use Real AI (Groq API)</span>
+                    <div class="relative">
+                        <input type="checkbox" id="ai-toggle" class="sr-only" onchange="toggleAIMode()">
+                        <div class="w-11 h-6 bg-gray-700 rounded-full transition" id="ai-toggle-bg"></div>
+                        <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition transform" id="ai-toggle-dot"></div>
+                    </div>
+                </label>
+                <p class="text-xs text-gray-500 mt-2">Enable for smarter AI responses via Groq API</p>
+            </div>
+
+            <!-- API Key Input -->
+            <div id="api-key-section" class="mb-6 opacity-50 pointer-events-none transition">
+                <label class="block text-gray-300 text-sm mb-2">Kimi API Key</label>
+                <input type="password" id="api-key-input" placeholder="sk-..." 
+                    class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white text-sm focus:border-indigo-500 focus:outline-none"
+                    onchange="saveApiKey()">
+                <p class="text-xs text-gray-500 mt-2">
+                    Using <a href="https://platform.moonshot.cn/" target="_blank" class="text-indigo-400 hover:underline">Kimi AI (Moonshot)</a>. 
+                    <span class="text-yellow-500">Note: CORS may block direct browser access.</span>
+                </p>
+            </div>
+
+            <!-- Model Selection -->
+            <div id="model-section" class="mb-6 opacity-50 pointer-events-none transition">
+                <label class="block text-gray-300 text-sm mb-2">AI Model</label>
+                <select id="model-select" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white text-sm focus:border-indigo-500 focus:outline-none" onchange="saveModel()">
+                    <option value="kimi-k2-turbo-preview">Kimi K2 Turbo (Latest, Best)</option>
+                    <option value="kimi-k2-turbo">Kimi K2 Turbo (Standard)</option>
+                    <option value="kimi-latest">Kimi Latest (Auto)</option>
+                </select>
+            </div>
+
+            <!-- Status -->
+            <div class="p-3 bg-gray-800 rounded-lg">
+                <div class="flex items-center gap-2 text-sm">
+                    <div id="api-status-dot" class="w-2 h-2 rounded-full bg-gray-500"></div>
+                    <span id="api-status-text" class="text-gray-400">Offline Mode - Using predefined responses</span>
+                </div>
+            </div>
+
+            <button onclick="testApiKey()" id="test-api-btn" class="mt-4 w-full py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                Test Connection
+            </button>
+
+            <!-- CORS Warning -->
+            <div id="cors-warning" class="mt-4 p-3 bg-yellow-900/30 border border-yellow-700/50 rounded-lg hidden">
+                <p class="text-xs text-yellow-400">
+                    <strong>⚠️ CORS Issue:</strong> Kimi API may block browser requests. If test fails, the API requires a server proxy.
+                </p>
+                <button onclick="showCorsSolution()" class="mt-2 text-xs text-indigo-400 hover:underline">View Solution</button>
+            </div>
+
+            <!-- CORS Solution -->
+            <div id="cors-solution" class="mt-4 p-3 bg-gray-800 rounded-lg hidden">
+                <p class="text-xs text-gray-400 mb-2"><strong>Options to fix CORS:</strong></p>
+                <ol class="text-xs text-gray-500 list-decimal pl-4 space-y-1">
+                    <li>Use a browser extension to disable CORS (development only)</li>
+                    <li>Set up a simple proxy server</li>
+                    <li>Use the <strong>Offline Mode</strong> which works perfectly without API</li>
+                </ol>
+                <button onclick="document.getElementById('cors-solution').classList.add('hidden')" class="mt-2 text-xs text-gray-500 hover:text-gray-300">Hide</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Channel Selector -->
+    <div class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6 sm:mb-8 z-10 max-w-2xl px-2 sm:px-4">
+        <button onclick="switchChannel('app')" id="btn-app"
+            class="channel-btn active px-3 sm:px-6 py-2 sm:py-3 rounded-full glass flex items-center gap-1 sm:gap-2 font-medium text-sm sm:text-base">
+            <i data-lucide="smartphone" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            <span class="hidden sm:inline">Mobile App</span>
+            <span class="sm:hidden">App</span>
+        </button>
+        <button onclick="switchChannel('ussd')" id="btn-ussd"
+            class="channel-btn px-3 sm:px-6 py-2 sm:py-3 rounded-full glass flex items-center gap-1 sm:gap-2 font-medium text-sm sm:text-base hover:bg-white/10">
+            <i data-lucide="hash" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            <span class="hidden sm:inline">USSD (*384#)</span>
+            <span class="sm:hidden">USSD</span>
+        </button>
+        <button onclick="switchChannel('sms')" id="btn-sms"
+            class="channel-btn px-3 sm:px-6 py-2 sm:py-3 rounded-full glass flex items-center gap-1 sm:gap-2 font-medium text-sm sm:text-base hover:bg-white/10">
+            <i data-lucide="message-square" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            <span class="hidden sm:inline">SMS</span>
+            <span class="sm:hidden">SMS</span>
+        </button>
+        <button onclick="switchChannel('ivr')" id="btn-ivr"
+            class="channel-btn px-3 sm:px-6 py-2 sm:py-3 rounded-full glass flex items-center gap-1 sm:gap-2 font-medium text-sm sm:text-base hover:bg-white/10">
+            <i data-lucide="phone" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            <span class="hidden sm:inline">Voice (IVR)</span>
+            <span class="sm:hidden">Voice</span>
+        </button>
+        <button onclick="switchChannel('web')" id="btn-web"
+            class="channel-btn px-3 sm:px-6 py-2 sm:py-3 rounded-full glass flex items-center gap-1 sm:gap-2 font-medium text-sm sm:text-base hover:bg-white/10">
+            <i data-lucide="globe" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            <span class="hidden sm:inline">Web Chat</span>
+            <span class="sm:hidden">Web</span>
+        </button>
+    </div>
+
+    <!-- Phone Container -->
+    <div class="phone-container-wrapper">
+        <div
+            class="phone-frame relative w-full max-w-[375px] h-[750px] bg-black rounded-[3rem] overflow-hidden z-10 border-4 border-gray-800">
+
+        <!-- Status Bar -->
+        <div
+            class="absolute top-0 w-full h-12 bg-black/80 backdrop-blur-md z-50 flex justify-between items-center px-6 text-xs font-medium text-white">
+            <span id="clock">12:00</span>
+            <div class="flex gap-1">
+                <div class="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
+                    <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                </div>
+            </div>
+            <div class="flex items-center gap-1">
+                <i data-lucide="signal" class="w-4 h-4"></i>
+                <i data-lucide="wifi" class="w-4 h-4"></i>
+                <i data-lucide="battery" class="w-4 h-4"></i>
+            </div>
+        </div>
+
+        <!-- APP CHANNEL -->
+        <div id="screen-app" class="screen active flex-col h-full bg-gray-900 pt-12 pb-4">
+            <!-- App Header -->
+            <div class="px-4 py-3 bg-indigo-600 flex items-center gap-3 shadow-lg">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <i data-lucide="brain" class="w-6 h-6 text-white"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-white">iKnow</h3>
+                    <p class="text-xs text-indigo-200 flex items-center gap-1">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        Online
+                    </p>
+                </div>
+                <button class="p-2 hover:bg-white/10 rounded-full" title="Voice settings" onclick="toggleMute()"><i data-lucide="volume-2"
+                        class="w-5 h-5" id="app-mute-icon"></i></button>
+            </div>
+
+            <!-- Chat Area -->
+            <div id="app-chat-area" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900">
+                <div class="text-center text-gray-500 text-xs mb-4">Today</div>
+
+                <div class="flex items-start gap-2 message-enter">
+                    <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="bot" class="w-4 h-4"></i>
+                    </div>
+                    <div class="bg-gray-800 rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%] text-sm text-gray-200">
+                        Hello! I'm iKnow, your AI assistant. I can help you with information, calculations,
+                        translations, and much more. What would you like to know?
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-2 message-enter" style="animation-delay: 0.2s">
+                    <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="bot" class="w-4 h-4"></i>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div
+                            class="bg-gray-800 rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%] text-sm text-gray-200">
+                            Try asking me:
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="sendAppQuick('Weather in New York')"
+                                class="px-3 py-1.5 bg-indigo-600/30 border border-indigo-500/50 rounded-full text-xs text-indigo-300 hover:bg-indigo-600/50 transition">Weather
+                                in New York</button>
+                            <button onclick="sendAppQuick('Convert $50 to EUR')"
+                                class="px-3 py-1.5 bg-indigo-600/30 border border-indigo-500/50 rounded-full text-xs text-indigo-300 hover:bg-indigo-600/50 transition">Convert
+                                $50 to EUR</button>
+                            <button onclick="sendAppQuick('Health tips')"
+                                class="px-3 py-1.5 bg-indigo-600/30 border border-indigo-500/50 rounded-full text-xs text-indigo-300 hover:bg-indigo-600/50 transition">Health
+                                tips</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="px-4 py-3 bg-gray-800 border-t border-gray-700">
+                <div class="flex items-center gap-2">
+                    <button class="p-2 text-gray-400 hover:text-white transition"><i data-lucide="plus"
+                            class="w-6 h-6"></i></button>
+                    <div class="flex-1 bg-gray-700 rounded-full px-4 py-2 flex items-center">
+                        <input type="text" id="app-input" placeholder="Ask iKnow anything..."
+                            class="flex-1 bg-transparent border-none outline-none text-sm text-white placeholder-gray-400"
+                            onkeypress="if(event.key==='Enter') sendAppMessage()">
+                        <button class="voice-btn text-gray-400 hover:text-white p-1 rounded-full" id="app-voice-btn" onclick="toggleVoiceInput('app')">
+                            <i data-lucide="mic" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <button onclick="sendAppMessage()"
+                        class="p-2 bg-indigo-600 rounded-full text-white hover:bg-indigo-700 transition shadow-lg shadow-indigo-600/30">
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div id="voice-status-app" class="text-center text-xs text-gray-500 mt-2 hidden">
+                    🎙️ Listening... Speak now
+                </div>
+            </div>
+        </div>
+
+        <!-- USSD CHANNEL -->
+        <div id="screen-ussd" class="screen flex-col h-full bg-black pt-12">
+            <div class="flex-1 flex items-center justify-center p-6">
+                <div class="w-full max-w-sm">
+                    <div class="bg-gray-900 rounded-lg overflow-hidden shadow-2xl border border-gray-700">
+                        <div
+                            class="bg-gray-800 px-4 py-2 text-xs text-gray-400 flex justify-between items-center border-b border-gray-700">
+                            <span>Running USSD Code</span>
+                            <span id="ussd-status">*384#</span>
+                        </div>
+                        <div id="ussd-content"
+                            class="ussd-text p-4 text-sm leading-relaxed min-h-[200px] whitespace-pre-line">
+                            Welcome to iKnow AI
+                            Your smart assistant on any phone
+
+                            1. Ask a Question
+                            2. Check Balance
+                            3. Health Tips
+                            4. Weather Info
+                            5. Language: English
+
+                            Reply with number (1-5):
+                        </div>
+                        <div class="bg-gray-800 p-3 border-t border-gray-700">
+                            <div class="flex gap-2">
+                                <input type="text" id="ussd-input" placeholder="Enter choice..."
+                                    class="flex-1 bg-black border border-gray-600 rounded px-3 py-2 text-white text-sm outline-none focus:border-indigo-500"
+                                    onkeypress="if(event.key==='Enter') handleUssd()">
+                                <button onclick="handleUssd()"
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium">SEND</button>
+                            </div>
+                            <div class="flex justify-between mt-2 text-xs text-gray-500">
+                                <button onclick="resetUssd()" class="hover:text-white">Cancel</button>
+                                <span>Session Active</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phone Keypad Visualization -->
+                    <div class="mt-6 grid grid-cols-3 gap-3 w-full max-w-[220px] mx-auto">
+                        <button onclick="pressUssdKey('1')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">1</button>
+                        <button onclick="pressUssdKey('2')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">2</button>
+                        <button onclick="pressUssdKey('3')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">3</button>
+                        <button onclick="pressUssdKey('4')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">4</button>
+                        <button onclick="pressUssdKey('5')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">5</button>
+                        <button onclick="pressUssdKey('6')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">6</button>
+                        <button onclick="pressUssdKey('7')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">7</button>
+                        <button onclick="pressUssdKey('8')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">8</button>
+                        <button onclick="pressUssdKey('9')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">9</button>
+                        <button onclick="pressUssdKey('*')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">*</button>
+                        <button onclick="pressUssdKey('0')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">0</button>
+                        <button onclick="pressUssdKey('#')" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 font-semibold text-lg hover:bg-gray-700 hover:text-white active:bg-gray-600 transition shadow-lg">#</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMS CHANNEL -->
+        <div id="screen-sms" class="screen flex-col h-full bg-gray-900 pt-12">
+            <!-- SMS Header -->
+            <div class="px-4 py-3 bg-gray-800 border-b border-gray-700 flex items-center gap-3">
+                <button class="text-indigo-400"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                <div class="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
+                    <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-white">iKnow AI</h3>
+                    <p class="text-xs text-gray-400">+1-384-AI-HELP</p>
+                </div>
+                <button class="p-2 text-gray-400" onclick="toggleMute()"><i data-lucide="volume-2" class="w-5 h-5" id="sms-mute-icon"></i></button>
+            </div>
+
+            <!-- SMS Chat -->
+            <div id="sms-chat-area" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-900">
+                <div class="text-center text-gray-500 text-xs mb-4">Today</div>
+
+                <div class="flex justify-start message-enter">
+                    <div
+                        class="sms-bubble sms-received bg-gray-700 text-white px-4 py-2 rounded-2xl rounded-bl-none text-sm max-w-[85%]">
+                        Welcome to iKnow! Text your question to get instant AI-powered answers. Standard SMS rates
+                        apply.
+                        <div class="text-[10px] text-gray-400 mt-1 text-right">12:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SMS Input -->
+            <div class="p-3 bg-gray-800 border-t border-gray-700">
+                <div class="flex items-end gap-2 bg-gray-700 rounded-2xl px-3 py-2">
+                    <button class="p-1 text-gray-400 hover:text-white mb-1"><i data-lucide="paperclip"
+                            class="w-5 h-5"></i></button>
+                    <textarea id="sms-input" rows="1" placeholder="Text message..."
+                        class="flex-1 bg-transparent border-none outline-none text-white text-sm resize-none max-h-24 py-1.5"
+                        oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
+                        onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendSmsMessage(); }"></textarea>
+                    <button onclick="toggleVoiceInput('sms')" class="voice-btn p-1 text-gray-400 hover:text-white mb-1" id="sms-voice-btn">
+                        <i data-lucide="mic" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="sendSmsMessage()"
+                        class="p-2 bg-green-600 rounded-full text-white hover:bg-green-700 transition mb-0.5">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="voice-status-sms" class="text-center text-[10px] text-gray-500 mt-2 hidden">
+                    🎙️ Listening...
+                </div>
+                <div class="text-center text-[10px] text-gray-500 mt-2">Powered by iKnow AI • Works on any phone</div>
+            </div>
+        </div>
+
+        <!-- IVR CHANNEL -->
+        <div id="screen-ivr" class="screen flex-col h-full bg-gray-900 pt-12">
+            <div class="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+                <!-- Call Background -->
+                <div class="absolute inset-0 bg-gradient-to-b from-gray-800 to-gray-900"></div>
+
+                <!-- Audio Visualization -->
+                <div class="relative z-10 flex items-center justify-center mb-8">
+                    <div id="ivr-pulse" class="w-24 h-24 rounded-full bg-red-500/20 flex items-center justify-center pulse-ring transition-all duration-300">
+                        <div id="ivr-inner-circle" class="w-16 h-16 rounded-full bg-red-500/30 flex items-center justify-center transition-all duration-300">
+                            <i data-lucide="phone" class="w-8 h-8 text-red-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Speaking Indicator -->
+                <div id="ivr-speaking" class="z-10 mb-4 hidden">
+                    <div class="flex items-center gap-2 text-green-400 text-sm">
+                        <div class="speaking-indicator">
+                            <div class="speaking-bar"></div>
+                            <div class="speaking-bar"></div>
+                            <div class="speaking-bar"></div>
+                            <div class="speaking-bar"></div>
+                        </div>
+                        <span>Speaking...</span>
+                    </div>
+                </div>
+
+                <!-- Listening Indicator -->
+                <div id="ivr-listening" class="z-10 mb-4 hidden">
+                    <div class="flex items-center gap-2 text-red-400 text-sm animate-pulse">
+                        <div class="speaking-indicator">
+                            <div class="speaking-bar bg-red-500"></div>
+                            <div class="speaking-bar bg-red-500"></div>
+                            <div class="speaking-bar bg-red-500"></div>
+                            <div class="speaking-bar bg-red-500"></div>
+                        </div>
+                        <span>Listening...</span>
+                    </div>
+                </div>
+
+                <!-- Call Info -->
+                <div class="text-center z-10 mb-8">
+                    <h2 class="text-2xl font-semibold text-white mb-1">iKnow Voice</h2>
+                    <p class="text-gray-400 text-sm">+1-800-AI-VOICE</p>
+                    <p id="ivr-timer" class="text-gray-500 text-sm mt-2">00:00</p>
+                </div>
+
+                <!-- IVR Script Display -->
+                <div
+                    class="w-full max-w-xs bg-black/40 rounded-xl p-4 mb-8 backdrop-blur-sm border border-white/10 z-10">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-xs text-gray-400 uppercase tracking-wider">AI Voice Says:</div>
+                        <button onclick="toggleMute()" class="mute-btn p-1 rounded" title="Toggle voice">
+                            <i data-lucide="volume-2" class="w-4 h-4 text-gray-400" id="ivr-mute-icon"></i>
+                        </button>
+                    </div>
+                    <div id="ivr-script" class="text-sm text-white leading-relaxed min-h-[60px]">
+                        "Hello! Welcome to iKnow. I can answer your questions by voice. Press 1 for General Knowledge, 2
+                        for Weather, or 3 to speak freely."
+                    </div>
+                </div>
+
+                <!-- Voice Input Status -->
+                <div id="ivr-voice-status" class="z-10 mb-4 hidden">
+                    <div class="text-center text-red-400 text-sm animate-pulse">
+                        🎙️ Listening... Speak now
+                    </div>
+                </div>
+
+                <!-- Keypad -->
+                <div class="grid grid-cols-3 gap-4 w-full max-w-[240px] z-10">
+                    <button onclick="pressIvr('1')"
+                        class="aspect-square rounded-full bg-white/10 hover:bg-white/20 flex flex-col items-center justify-center text-white transition active:scale-95">
+                        <span class="text-xl font-light">1</span>
+                    </button>
+                    <button onclick="pressIvr('2')"
+                        class="aspect-square rounded-full bg-white/10 hover:bg-white/20 flex flex-col items-center justify-center text-white transition active:scale-95">
+                        <span class="text-xl font-light">2</span>
+                    </button>
+                    <button onclick="pressIvr('3')"
+                        class="aspect-square rounded-full bg-white/10 hover:bg-white/20 flex flex-col items-center justify-center text-white transition active:scale-95">
+                        <span class="text-xl font-light">3</span>
+                    </button>
+                    <button onclick="pressIvr('*')"
+                        class="aspect-square rounded-full bg-white/10 hover:bg-white/20 flex flex-col items-center justify-center text-white transition active:scale-95">
+                        <span class="text-xl">*</span>
+                    </button>
+                    <button onclick="pressIvr('0')"
+                        class="aspect-square rounded-full bg-white/10 hover:bg-white/20 flex flex-col items-center justify-center text-white transition active:scale-95">
+                        <span class="text-xl font-light">0</span>
+                        <span class="text-[10px] text-gray-400">Speak</span>
+                    </button>
+                    <button onclick="pressIvr('#')"
+                        class="aspect-square rounded-full bg-white/10 hover:bg-white/20 flex flex-col items-center justify-center text-white transition active:scale-95">
+                        <span class="text-xl">#</span>
+                    </button>
+                </div>
+
+                <!-- End Call -->
+                <button onclick="resetIvr()"
+                    class="mt-8 w-14 h-14 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center text-white shadow-lg shadow-red-600/30 transition z-10">
+                    <i data-lucide="phone-off" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- WEB CHANNEL -->
+        <div id="screen-web" class="screen flex-col h-full bg-white pt-12">
+            <!-- Modern Browser Chrome -->
+            <div class="bg-gray-100 border-b border-gray-200">
+                <!-- Window Controls + Address Bar -->
+                <div class="px-3 py-2 flex items-center gap-2">
+                    <!-- Window Controls -->
+                    <div class="flex gap-1.5">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <!-- Navigation Buttons -->
+                    <div class="flex gap-1 ml-2">
+                        <button class="p-1 text-gray-400 hover:text-gray-600"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                        <button class="p-1 text-gray-400 hover:text-gray-600"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                        <button class="p-1 text-gray-400 hover:text-gray-600"><i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                    <!-- Address Bar -->
+                    <div class="flex-1 bg-white rounded-lg px-3 py-1.5 text-xs text-gray-600 flex items-center gap-2 shadow-sm border border-gray-200">
+                        <i data-lucide="lock" class="w-3 h-3 text-green-600"></i>
+                        <span class="flex-1 truncate">iknow.ai/chat</span>
+                        <i data-lucide="star" class="w-3 h-3 text-gray-400"></i>
+                    </div>
+                    <!-- Menu -->
+                    <button class="p-1 text-gray-500 hover:text-gray-700"><i data-lucide="more-vertical" class="w-4 h-4"></i></button>
+                </div>
+                <!-- Tabs -->
+                <div class="flex px-2 gap-1">
+                    <div class="bg-white px-3 py-1.5 rounded-t-lg text-xs text-gray-700 flex items-center gap-2 border-t border-x border-gray-200 max-w-[120px]">
+                        <i data-lucide="message-circle" class="w-3 h-3 text-indigo-600"></i>
+                        <span class="truncate">iKnow Chat</span>
+                        <button class="hover:text-gray-900"><i data-lucide="x" class="w-3 h-3"></i></button>
+                    </div>
+                    <div class="px-2 py-1.5 text-xs text-gray-500 flex items-center gap-1 hover:bg-gray-200/50 rounded-t-lg cursor-pointer">
+                        <i data-lucide="plus" class="w-3 h-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Web Chat - Full Screen Interface -->
+            <div class="flex-1 flex flex-col bg-gradient-to-b from-gray-50 to-white">
+                <!-- Chat Header -->
+                <div class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
+                            <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800 text-sm">iKnow Assistant</h3>
+                            <div class="flex items-center gap-1.5 text-xs text-green-600">
+                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                                <span>Online</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="toggleMute()" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition" title="Toggle voice">
+                            <i data-lucide="volume-2" class="w-4 h-4" id="web-mute-icon"></i>
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition">
+                            <i data-lucide="phone" class="w-4 h-4"></i>
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition">
+                            <i data-lucide="video" class="w-4 h-4"></i>
+                        </button>
+                        <button class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition">
+                            <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Area - Full Height -->
+                <div id="web-chat-area" class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <!-- Date Divider -->
+                    <div class="flex items-center justify-center">
+                        <div class="bg-gray-200 h-px flex-1"></div>
+                        <span class="px-3 text-xs text-gray-400">Today</span>
+                        <div class="bg-gray-200 h-px flex-1"></div>
+                    </div>
+
+                    <!-- Welcome Message -->
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <div class="bg-white rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-gray-200 max-w-[85%]">
+                            <p class="text-sm text-gray-700">Hi there! 👋 I'm iKnow. I can help you find information, answer questions, or assist with tasks.</p>
+                            <p class="text-sm text-gray-700 mt-2">What can I do for you today?</p>
+                            <span class="text-[10px] text-gray-400 mt-1 block">12:00 PM</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="flex flex-wrap gap-2 pl-11">
+                        <button onclick="sendWebQuick('Weather in New York')" class="px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-full text-xs text-indigo-600 hover:bg-indigo-100 transition">
+                            🌤️ Weather
+                        </button>
+                        <button onclick="sendWebQuick('Tell me a joke')" class="px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-100 transition">
+                            😂 Joke
+                        </button>
+                        <button onclick="sendWebQuick('Health tips')" class="px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-xs text-green-600 hover:bg-green-100 transition">
+                            💡 Health Tips
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Voice Status -->
+                <div id="voice-status-web" class="px-4 py-2 bg-indigo-50 border-y border-indigo-100 hidden">
+                    <div class="flex items-center justify-center gap-2 text-indigo-600 text-sm">
+                        <div class="speaking-indicator">
+                            <div class="speaking-bar" style="background: #6366f1;"></div>
+                            <div class="speaking-bar" style="background: #6366f1;"></div>
+                            <div class="speaking-bar" style="background: #6366f1;"></div>
+                        </div>
+                        <span>Listening...</span>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="bg-white border-t border-gray-200 p-3">
+                    <!-- Emoji/Attachment Bar -->
+                    <div class="flex items-center gap-2 mb-2 px-1">
+                        <button class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition"><i data-lucide="plus-circle" class="w-5 h-5"></i></button>
+                        <button class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition"><i data-lucide="image" class="w-5 h-5"></i></button>
+                        <button class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition"><i data-lucide="smile" class="w-5 h-5"></i></button>
+                        <button class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition"><i data-lucide="paperclip" class="w-5 h-5"></i></button>
+                    </div>
+                    <!-- Message Input -->
+                    <div class="flex items-end gap-2 bg-gray-100 rounded-2xl px-3 py-2">
+                        <button onclick="toggleVoiceInput('web')" class="voice-btn p-2 text-gray-500 hover:text-indigo-600 hover:bg-white rounded-full transition flex-shrink-0" id="web-voice-btn">
+                            <i data-lucide="mic" class="w-5 h-5"></i>
+                        </button>
+                        <textarea id="web-input" placeholder="Type a message..." rows="1"
+                            class="flex-1 bg-transparent border-none outline-none text-sm text-gray-700 resize-none max-h-20 py-2"
+                            oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 80) + 'px'"
+                            onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendWebMessage(); }"></textarea>
+                        <button onclick="sendWebMessage()" class="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition flex-shrink-0 shadow-md">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <p class="text-center text-[10px] text-gray-400 mt-2">Powered by iKnow AI • 🎙️ Voice Enabled</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Footer -->
+    <div class="mt-6 sm:mt-8 text-center text-gray-500 text-xs sm:text-sm z-10 max-w-md px-4">
+        <p class="mb-2">Click the channel buttons above to switch between different access methods.</p>
+        <div class="flex flex-wrap justify-center gap-2 sm:gap-4 text-xs">
+            <span class="flex items-center gap-1">
+                <div class="w-2 h-2 bg-green-500 rounded-full"></div> App Data
+            </span>
+            <span class="flex items-center gap-1">
+                <div class="w-2 h-2 bg-blue-500 rounded-full"></div> USSD Active
+            </span>
+            <span class="flex items-center gap-1">
+                <div class="w-2 h-2 bg-purple-500 rounded-full"></div> AI Connected
+            </span>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // GLOBAL STATE
+        // ============================================
+        let isMuted = false;
+        let isListening = false;
+        let currentChannel = 'app';
+        let recognition = null;
+        let ivrTimer = 0;
+        let ivrInterval;
+        let ussdSession = 'main';
+        let speakingQueue = [];
+        let isSpeaking = false;
+        let aiMode = false;
+        let apiKey = '';
+        let selectedModel = 'llama-3.1-8b-instant';
+        let isApiLoading = false;
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            updateClock();
+            setInterval(updateClock, 1000);
+            initSpeechRecognition();
+            loadSettings();
+        });
+
+        // Initialize Web Speech API
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = true;  // Show interim results
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    console.log('✅ Speech recognition service started');
+                };
+
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    // Log interim results
+                    if (interimTranscript) {
+                        console.log('📝 Interim:', interimTranscript);
+                    }
+
+                    // Handle final result
+                    if (finalTranscript) {
+                        console.log('✅ Final:', finalTranscript);
+                        handleVoiceResult(finalTranscript);
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('❌ Speech recognition error:', event.error);
+                    if (event.error === 'no-speech') {
+                        console.log('⚠️ No speech detected');
+                    } else if (event.error === 'audio-capture') {
+                        console.log('❌ No microphone found');
+                    } else if (event.error === 'not-allowed') {
+                        console.log('❌ Microphone permission denied');
+                    }
+                    stopVoiceInput();
+                };
+
+                recognition.onend = () => {
+                    console.log('🛑 Speech recognition ended');
+                    stopVoiceInput();
+                };
+
+                console.log('🎙️ Speech recognition initialized');
+            } else {
+                console.error('❌ Web Speech API not supported in this browser');
+            }
+        }
+
+        // ============================================
+        // CLOCK
+        // ============================================
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            document.getElementById('clock').textContent = timeString;
+        }
+
+        // ============================================
+        // CHANNEL SWITCHING
+        // ============================================
+        function switchChannel(channel) {
+            currentChannel = channel;
+            
+            // Update buttons
+            document.querySelectorAll('.channel-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${channel}`).classList.add('active');
+
+            // Update screens
+            document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+            document.getElementById(`screen-${channel}`).classList.add('active');
+
+            // Stop any ongoing voice activities
+            stopVoiceInput();
+            stopSpeaking();
+
+            // Channel specific initializations
+            if (channel === 'ivr') {
+                startIvrTimer();
+                stopVoiceInput();
+                const greeting = document.getElementById('ivr-script').textContent.replace(/"/g, '');
+                speakIVR(greeting);
+            } else {
+                clearInterval(ivrInterval);
+                stopVoiceInput();
+                stopSpeaking();
+            }
+
+            if (channel === 'ussd') {
+                document.getElementById('ussd-input').focus();
+            }
+        }
+
+        // ============================================
+        // VOICE & SPEECH FUNCTIONS
+        // ============================================
+        
+        // Toggle mute state
+        function toggleMute() {
+            isMuted = !isMuted;
+            updateMuteIcons();
+            if (isMuted) {
+                stopSpeaking();
+            }
+        }
+
+        function updateMuteIcons() {
+            const icons = ['app-mute-icon', 'ivr-mute-icon', 'web-mute-icon', 'sms-mute-icon'];
+            icons.forEach(id => {
+                const icon = document.getElementById(id);
+                if (icon) {
+                    icon.setAttribute('data-lucide', isMuted ? 'volume-x' : 'volume-2');
+                }
+            });
+            lucide.createIcons();
+        }
+
+        // Text-to-Speech for IVR
+        function speakIVR(text, onEndCallback) {
+            if (isMuted || !text) {
+                if (onEndCallback) onEndCallback();
+                return;
+            }
+
+            if ('speechSynthesis' in window) {
+                // Stop any current speech
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                // Show speaking indicator
+                const indicator = document.getElementById('ivr-speaking');
+                if (indicator) indicator.classList.remove('hidden');
+
+                // Add pulse effect during speech
+                const pulse = document.getElementById('ivr-pulse');
+                if (pulse) pulse.classList.add('recording');
+
+                utterance.onend = () => {
+                    if (indicator) indicator.classList.add('hidden');
+                    if (pulse) pulse.classList.remove('recording');
+                    if (onEndCallback) onEndCallback();
+                };
+
+                utterance.onerror = () => {
+                    if (indicator) indicator.classList.add('hidden');
+                    if (pulse) pulse.classList.remove('recording');
+                    if (onEndCallback) onEndCallback();
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                if (onEndCallback) onEndCallback();
+            }
+        }
+
+        // Speak responses in any channel (if not muted)
+        function speakResponse(text) {
+            if (isMuted || !text || currentChannel === 'ussd' || currentChannel === 'sms') return;
+
+            if ('speechSynthesis' in window) {
+                // Queue the speech
+                speakingQueue.push(text);
+                processSpeakingQueue();
+            }
+        }
+
+        function processSpeakingQueue() {
+            if (isSpeaking || speakingQueue.length === 0) return;
+
+            isSpeaking = true;
+            const text = speakingQueue.shift();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1;
+            utterance.pitch = 1;
+            utterance.volume = 0.8;
+
+            utterance.onend = () => {
+                isSpeaking = false;
+                processSpeakingQueue();
+            };
+
+            utterance.onerror = () => {
+                isSpeaking = false;
+                processSpeakingQueue();
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function stopSpeaking() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            speakingQueue = [];
+            isSpeaking = false;
+            
+            const indicator = document.getElementById('ivr-speaking');
+            if (indicator) indicator.classList.add('hidden');
+            
+            const pulse = document.getElementById('ivr-pulse');
+            if (pulse) pulse.classList.remove('recording');
+        }
+
+        // Toggle Voice Input (Speech-to-Text)
+        function toggleVoiceInput(channel) {
+            if (!recognition) {
+                alert('Voice input is not supported in your browser. Try Chrome or Edge.');
+                return;
+            }
+
+            if (isListening) {
+                recognition.stop();
+                stopVoiceInput();
+            } else {
+                startVoiceInput(channel);
+            }
+        }
+
+        function startVoiceInput(channel) {
+            if (!recognition) {
+                console.error('Speech recognition not supported');
+                return;
+            }
+            
+            isListening = true;
+            console.log('🎙️ Starting voice input for channel:', channel);
+            
+            // Update UI
+            const btn = document.getElementById(`${channel}-voice-btn`);
+            const status = document.getElementById(`voice-status-${channel}`);
+            
+            if (btn) btn.classList.add('listening');
+            if (status) status.classList.remove('hidden');
+
+            // For IVR, show special visual feedback
+            if (channel === 'ivr') {
+                const ivrStatus = document.getElementById('ivr-voice-status');
+                const ivrListening = document.getElementById('ivr-listening');
+                const ivrPulse = document.getElementById('ivr-pulse');
+                const ivrInner = document.getElementById('ivr-inner-circle');
+                
+                if (ivrStatus) ivrStatus.classList.remove('hidden');
+                if (ivrListening) ivrListening.classList.remove('hidden');
+                if (ivrPulse) {
+                    ivrPulse.classList.remove('pulse-ring');
+                    ivrPulse.classList.add('pulse-ring', 'recording');
+                    ivrPulse.style.background = 'rgba(239, 68, 68, 0.4)';
+                }
+                if (ivrInner) {
+                    ivrInner.style.background = 'rgba(239, 68, 68, 0.5)';
+                }
+            }
+
+            try {
+                recognition.start();
+                console.log('✅ Speech recognition started');
+            } catch (e) {
+                console.error('❌ Speech recognition error:', e);
+                stopVoiceInput();
+            }
+        }
+
+        function stopVoiceInput() {
+            isListening = false;
+            console.log('🛑 Stopping voice input');
+            
+            // Update all voice buttons
+            document.querySelectorAll('.voice-btn').forEach(btn => {
+                btn.classList.remove('listening');
+            });
+            
+            // Hide all status indicators
+            document.querySelectorAll('[id^="voice-status-"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // Hide IVR specific indicators
+            const ivrStatus = document.getElementById('ivr-voice-status');
+            const ivrListening = document.getElementById('ivr-listening');
+            const ivrPulse = document.getElementById('ivr-pulse');
+            const ivrInner = document.getElementById('ivr-inner-circle');
+            
+            if (ivrStatus) ivrStatus.classList.add('hidden');
+            if (ivrListening) ivrListening.classList.add('hidden');
+            if (ivrPulse) {
+                ivrPulse.classList.remove('recording');
+                ivrPulse.style.background = '';
+            }
+            if (ivrInner) {
+                ivrInner.style.background = '';
+            }
+        }
+
+        function handleVoiceResult(transcript) {
+            const text = transcript.trim();
+            console.log('🎤 Voice heard:', text);
+            
+            if (!text) {
+                console.log('⚠️ Empty transcript, ignoring');
+                return;
+            }
+
+            switch (currentChannel) {
+                case 'app':
+                    document.getElementById('app-input').value = text;
+                    sendAppMessage();
+                    break;
+                case 'sms':
+                    document.getElementById('sms-input').value = text;
+                    sendSmsMessage();
+                    break;
+                case 'web':
+                    document.getElementById('web-input').value = text;
+                    sendWebMessage();
+                    break;
+                case 'ivr':
+                    handleVoiceIVR(text);
+                    break;
+            }
+        }
+
+        async function handleVoiceIVR(text) {
+            const lower = text.toLowerCase();
+            let key = '';
+
+            // Check for menu navigation commands (single words)
+            if (lower === 'one' || lower === '1' || lower.includes('general knowledge')) key = '1';
+            else if (lower === 'two' || lower === '2' || lower.includes('weather')) key = '2';
+            else if (lower === 'three' || lower === '3' || lower.includes('free speech') || lower === 'speak') key = '3';
+            else if (lower === 'zero' || lower === '0' || lower === 'back' || lower === 'menu' || lower === 'main menu') key = '0';
+            else if (lower === 'star' || lower === '*') key = '*';
+            else if (lower === 'hash' || lower === '#' || lower === 'pound' || lower === 'goodbye' || lower === 'bye') key = '#';
+
+            if (key) {
+                // Navigation command - use pressIvr
+                pressIvr(key);
+            } else {
+                // Process as a question
+                await processIvrQuestion(text);
+            }
+        }
+
+        // ============================================
+        // APP CHANNEL LOGIC
+        // ============================================
+        async function sendAppMessage() {
+            const input = document.getElementById('app-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addAppMessage(message, 'user');
+            input.value = '';
+
+            showTyping('app');
+
+            const response = await getAIResponse(message);
+            removeTyping('app');
+            addAppMessage(response, 'bot');
+        }
+
+        async function sendAppQuick(text) {
+            addAppMessage(text, 'user');
+            showTyping('app');
+            const response = await getAIResponse(text);
+            removeTyping('app');
+            addAppMessage(response, 'bot');
+        }
+
+        // Quick send for Web Chat
+        async function sendWebQuick(text) {
+            const chatArea = document.getElementById('web-chat-area');
+            
+            // Add user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'flex items-start gap-3 justify-end message-enter';
+            userDiv.innerHTML = `
+                <div class="bg-indigo-600 rounded-2xl rounded-tr-none px-4 py-3 text-sm text-white max-w-[85%] shadow-md">
+                    ${escapeHtml(text)}
+                    <span class="text-[10px] text-indigo-200 block mt-1 text-right">${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
+                </div>
+            `;
+            chatArea.appendChild(userDiv);
+            lucide.createIcons();
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            // Show typing
+            const typing = document.createElement('div');
+            typing.id = 'web-typing';
+            typing.className = 'flex items-start gap-3 message-enter';
+            const thinkingText = aiMode && apiKey ? 'Thinking...' : '';
+            typing.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+                </div>
+                <div class="bg-white rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-gray-200 flex items-center gap-2">
+                    <div class="flex gap-1">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    </div>
+                    ${thinkingText ? '<span class="text-xs text-gray-400">' + thinkingText + '</span>' : ''}
+                </div>
+            `;
+            chatArea.appendChild(typing);
+            lucide.createIcons();
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            // Get response
+            const response = await getAIResponse(text);
+            const typingEl = document.getElementById('web-typing');
+            if (typingEl) typingEl.remove();
+            
+            const botDiv = document.createElement('div');
+            botDiv.className = 'flex items-start gap-3 message-enter';
+            botDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+                </div>
+                <div class="bg-white rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-gray-200 max-w-[85%]">
+                    <p class="text-sm text-gray-700">${escapeHtml(response)}</p>
+                    <span class="text-[10px] text-gray-400 block mt-1">${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                </div>
+            `;
+            chatArea.appendChild(botDiv);
+            lucide.createIcons();
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function addAppMessage(text, sender) {
+            const chatArea = document.getElementById('app-chat-area');
+            const div = document.createElement('div');
+
+            if (sender === 'user') {
+                div.className = 'flex items-start gap-2 justify-end message-enter';
+                div.innerHTML = `
+                    <div class="bg-indigo-600 rounded-2xl rounded-tr-none px-4 py-3 max-w-[80%] text-sm text-white shadow-md">
+                        ${escapeHtml(text)}
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                    </div>
+                `;
+            } else {
+                div.className = 'flex items-start gap-2 message-enter';
+                div.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="bot" class="w-4 h-4"></i>
+                    </div>
+                    <div class="bg-gray-800 rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%] text-sm text-gray-200 shadow-md">
+                        ${escapeHtml(text)}
+                    </div>
+                `;
+            }
+
+            chatArea.appendChild(div);
+            lucide.createIcons();
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function showTyping(channel) {
+            const chatArea = document.getElementById(`${channel}-chat-area`);
+            const typing = document.createElement('div');
+            typing.id = 'typing-indicator';
+            typing.className = 'flex items-start gap-2 message-enter';
+            typing.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="bot" class="w-4 h-4"></i>
+                </div>
+                <div class="bg-gray-800 rounded-2xl rounded-tl-none px-4 py-3 flex gap-1">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                </div>
+            `;
+            chatArea.appendChild(typing);
+            lucide.createIcons();
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function removeTyping(channel) {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+
+        // ============================================
+        // USSD LOGIC
+        // ============================================
+        function pressUssdKey(key) {
+            const input = document.getElementById('ussd-input');
+            input.value += key;
+            input.focus();
+        }
+
+        async function handleUssd() {
+            const input = document.getElementById('ussd-input');
+            const value = input.value.trim();
+            const content = document.getElementById('ussd-content');
+
+            if (!value) return;
+
+            input.value = '';
+            content.textContent = 'Processing...';
+
+            let response = '';
+
+            if (ussdSession === 'main') {
+                switch (value) {
+                    case '1':
+                        ussdSession = 'question';
+                        response = 'Ask iKnow:\n\nEnter your question (e.g., "Capital of France"):';
+                        break;
+                    case '2':
+                        response = 'Account Balance\n\nYour AI Credits: 245\nStatus: Active\n\n0. Back to Main Menu';
+                        break;
+                    case '3':
+                        response = 'Health Tips:\n\n1. Drink 8 glasses of water\n2. Exercise 30 mins daily\n3. Sleep 7-8 hours\n\n0. Back to Main Menu';
+                        break;
+                    case '4':
+                        ussdSession = 'weather';
+                        response = 'Weather Info:\n\nEnter city name:';
+                        break;
+                    case '5':
+                        response = 'Language:\n\n1. English\n2. French\n3. Spanish\n4. Arabic\n\n0. Back';
+                        break;
+                    default:
+                        response = 'Invalid choice. Please try again.\n\n1. Ask a Question\n2. Check Balance\n3. Health Tips\n4. Weather Info\n5. Language';
+                }
+            } else if (ussdSession === 'question') {
+                if (value === '0') {
+                    ussdSession = 'main';
+                    response = 'Main Menu:\n\n1. Ask a Question\n2. Check Balance\n3. Health Tips\n4. Weather Info\n5. Language';
+                } else if (value === '00') {
+                    ussdSession = 'main';
+                    response = 'Main Menu:\n\n1. Ask a Question\n2. Check Balance\n3. Health Tips\n4. Weather Info\n5. Language';
+                } else {
+                    const answer = await getAIResponse(value);
+                    response = `iKnow Answer:\n\nQ: ${value}\nA: ${answer.substring(0, 100)}...\n\n0. Ask another\n00. Main Menu`;
+                }
+            } else if (ussdSession === 'weather') {
+                if (value === '0') {
+                    ussdSession = 'main';
+                    response = 'Main Menu:\n\n1. Ask a Question\n2. Check Balance\n3. Health Tips\n4. Weather Info\n5. Language';
+                } else if (value === '00') {
+                    ussdSession = 'main';
+                    response = 'Main Menu:\n\n1. Ask a Question\n2. Check Balance\n3. Health Tips\n4. Weather Info\n5. Language';
+                } else {
+                    response = `Weather for ${value}:\n\nTemp: 24°C\nCondition: Partly Cloudy\nHumidity: 65%\n\n0. Check another city\n00. Main Menu`;
+                }
+            }
+
+            content.textContent = response;
+        }
+
+        function resetUssd() {
+            ussdSession = 'main';
+            document.getElementById('ussd-content').textContent = `Welcome to iKnow AI
+Your smart assistant on any phone
+
+1. Ask a Question
+2. Check Balance
+3. Health Tips
+4. Weather Info
+5. Language: English
+
+Reply with number (1-5):`;
+            document.getElementById('ussd-input').value = '';
+        }
+
+        // ============================================
+        // SMS LOGIC
+        // ============================================
+        async function sendSmsMessage() {
+            const input = document.getElementById('sms-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chatArea = document.getElementById('sms-chat-area');
+            const time = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+            // Add user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'flex justify-end message-enter';
+            userDiv.innerHTML = `
+                <div class="sms-bubble sms-sent bg-indigo-600 text-white px-4 py-2 rounded-2xl rounded-br-none text-sm max-w-[85%] shadow-md">
+                    ${escapeHtml(message)}
+                    <div class="text-[10px] text-indigo-200 mt-1 text-right flex items-center justify-end gap-1">
+                        ${time} <i data-lucide="check-check" class="w-3 h-3"></i>
+                    </div>
+                </div>
+            `;
+            chatArea.appendChild(userDiv);
+
+            input.value = '';
+            input.style.height = '';
+            lucide.createIcons();
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            // Get AI response
+            const response = await getAIResponse(message);
+            const botDiv = document.createElement('div');
+            botDiv.className = 'flex justify-start message-enter';
+            botDiv.innerHTML = `
+                <div class="sms-bubble sms-received bg-gray-700 text-white px-4 py-2 rounded-2xl rounded-bl-none text-sm max-w-[85%] shadow-md">
+                    ${escapeHtml(response)}
+                    <div class="text-[10px] text-gray-400 mt-1 text-right">${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</div>
+                </div>
+            `;
+            chatArea.appendChild(botDiv);
+            lucide.createIcons();
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // ============================================
+        // IVR LOGIC
+        // ============================================
+        function startIvrTimer() {
+            clearInterval(ivrInterval);
+            ivrTimer = 0;
+            document.getElementById('ivr-timer').textContent = '00:00';
+            ivrInterval = setInterval(() => {
+                ivrTimer++;
+                const mins = Math.floor(ivrTimer / 60).toString().padStart(2, '0');
+                const secs = (ivrTimer % 60).toString().padStart(2, '0');
+                document.getElementById('ivr-timer').textContent = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function resetIvr() {
+            clearInterval(ivrInterval);
+            stopSpeaking();
+            document.getElementById('ivr-script').textContent = '"Hello! Welcome to iKnow. I can answer your questions by voice. Press 1 for General Knowledge, 2 for Weather, or 3 to speak freely."';
+            document.getElementById('ivr-timer').textContent = '00:00';
+            switchChannel('app');
+        }
+
+        function pressIvr(key) {
+            const script = document.getElementById('ivr-script');
+            const responses = {
+                '1': '"General Knowledge selected. Ask me anything! For example, say Who invented the telephone? or press 0 to return to main menu."',
+                '2': '"Weather service. Please say the name of your city after the beep, or press 0 to go back."',
+                '3': '"Free speech mode activated. I am listening! Tell me what you need help with, or press 0 to go back."',
+                '0': '"Returning to main menu. Press 1 for General Knowledge, 2 for Weather, or 3 to speak freely."',
+                '*': '"To repeat the last message, press star. To go back, press 0. To speak naturally, press 3."',
+                '#': '"Thank you for using iKnow Voice. Goodbye!"'
+            };
+
+            script.style.opacity = '0.5';
+            setTimeout(() => {
+                const response = responses[key] || '"I did not catch that. Please try again or press 0 for the main menu."';
+                script.textContent = response;
+                script.style.opacity = '1';
+                
+                const cleanResponse = response.replace(/"/g, '');
+
+                // Stop any existing voice input first
+                stopVoiceInput();
+
+                // Key 3: Start voice input after speaking
+                if (key === '3') {
+                    speakIVR(cleanResponse, () => {
+                        // Start listening after speech ends
+                        setTimeout(() => {
+                            startVoiceInput('ivr');
+                        }, 500);
+                    });
+                }
+                // Key 0: Return to main menu
+                else if (key === '0') {
+                    speakIVR(cleanResponse);
+                }
+                // Key #: End call
+                else if (key === '#') {
+                    speakIVR(cleanResponse, () => {
+                        setTimeout(() => {
+                            resetIvr();
+                        }, 500);
+                    });
+                }
+                // Other keys: Just speak
+                else {
+                    speakIVR(cleanResponse);
+                }
+            }, 300);
+        }
+
+        // Process voice question in IVR mode
+        async function processIvrQuestion(question) {
+            const script = document.getElementById('ivr-script');
+            
+            console.log('🤖 Processing IVR question:', question);
+            
+            // Show what was heard
+            script.textContent = `"You said: ${question}"`;
+            
+            // Small delay before processing
+            await new Promise(r => setTimeout(r, 500));
+            
+            // Show processing
+            script.textContent = '"Thinking..."';
+            
+            // Get AI response
+            const answer = await getAIResponse(question);
+            
+            console.log('🤖 AI Answer:', answer);
+            
+            // Show response
+            const displayText = `"${answer}\n\nSay another question or press 0 for main menu."`;
+            script.textContent = displayText;
+            
+            // Speak the answer
+            speakIVR(answer, () => {
+                // After speaking, listen again
+                setTimeout(() => {
+                    startVoiceInput('ivr');
+                }, 500);
+            });
+        }
+
+        // ============================================
+        // WEB CHANNEL LOGIC
+        // ============================================
+        async function sendWebMessage() {
+            const input = document.getElementById('web-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chatArea = document.getElementById('web-chat-area');
+
+            // Add user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'flex items-start gap-3 justify-end message-enter';
+            userDiv.innerHTML = `
+                <div class="bg-indigo-600 rounded-2xl rounded-tr-none px-4 py-3 text-sm text-white max-w-[85%] shadow-md">
+                    ${escapeHtml(message)}
+                    <span class="text-[10px] text-indigo-200 block mt-1 text-right">${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
+                </div>
+            `;
+            chatArea.appendChild(userDiv);
+            input.value = '';
+            input.style.height = '';
+            lucide.createIcons();
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            // Show typing indicator for web
+            const typing = document.createElement('div');
+            typing.id = 'web-typing';
+            typing.className = 'flex items-start gap-3 message-enter';
+            const thinkingText = aiMode && apiKey ? 'Thinking...' : '';
+            typing.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+                </div>
+                <div class="bg-white rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-gray-200 flex items-center gap-2">
+                    <div class="flex gap-1">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    </div>
+                    ${thinkingText ? '<span class="text-xs text-gray-400">' + thinkingText + '</span>' : ''}
+                </div>
+            `;
+            chatArea.appendChild(typing);
+            lucide.createIcons();
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            // Get AI response
+            const response = await getAIResponse(message);
+            const typingEl = document.getElementById('web-typing');
+            if (typingEl) typingEl.remove();
+            
+            const botDiv = document.createElement('div');
+            botDiv.className = 'flex items-start gap-3 message-enter';
+            botDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+                </div>
+                <div class="bg-white rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-gray-200 max-w-[85%]">
+                    <p class="text-sm text-gray-700">${escapeHtml(response)}</p>
+                    <span class="text-[10px] text-gray-400 block mt-1">${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                </div>
+            `;
+            chatArea.appendChild(botDiv);
+            lucide.createIcons();
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // ============================================
+        // ENHANCED AI RESPONSE GENERATOR
+        // ============================================
+        function generateAiResponse(input) {
+            const lower = input.toLowerCase();
+            
+            // Weather queries
+            if (lower.match(/weather|temperature|forecast|rain|sunny|cloud/i)) {
+                const responses = [
+                    "Currently, it's partly cloudy with a temperature of 24°C (75°F). Expect light winds from the southwest at 10 km/h. Would you like the forecast for tomorrow?",
+                    "It's 24°C and partly cloudy right now. Humidity is at 65% with light winds. Perfect weather for a walk!",
+                    "Weather update: 24°C, partly cloudy conditions. No rain expected in the next few hours. ☁️"
+                ];
+                return pickRandom(responses);
+            }
+            
+            // Currency conversion
+            else if (lower.match(/convert|exchange|usd|eur|dollar|euro|gbp|pound/i)) {
+                return "💱 Exchange Rate:\n$50 USD = €46.25 EUR\n\nRate: 1 USD = 0.925 EUR\nLast updated: Just now";
+            }
+            
+            // Health tips
+            else if (lower.match(/health|tip|exercise|diet|water|sleep|fitness/i)) {
+                const responses = [
+                    "🍎 Health Tip: Regular physical activity can improve your muscle strength and boost your endurance. Exercise delivers oxygen and nutrients to your tissues and helps your cardiovascular system work more efficiently.",
+                    "💧 Stay hydrated! Drinking 8 glasses of water daily helps maintain body temperature, lubricate joints, and remove waste.",
+                    "😴 Sleep matters: Adults need 7-9 hours of sleep. Good sleep improves memory, mood, and overall health.",
+                    "🥗 Eat the rainbow! Different colored fruits and vegetables provide different nutrients. Variety is key to balanced nutrition."
+                ];
+                return pickRandom(responses);
+            }
+            
+            // Capital / Geography
+            else if (lower.match(/capital|country|city|france|paris|london|uk|germany/i)) {
+                if (lower.includes('france')) {
+                    return "🌍 The capital of France is Paris. It's the country's largest city and serves as the major European hub of finance, diplomacy, commerce, fashion, science, and arts.";
+                }
+                if (lower.includes('uk') || lower.includes('britain') || lower.includes('england')) {
+                    return "🌍 The capital of the United Kingdom is London. It's one of the world's most important global cities and a major financial center.";
+                }
+                if (lower.includes('germany')) {
+                    return "🌍 The capital of Germany is Berlin. It's known for its art scene, modern landmarks, and turbulent 20th-century history.";
+                }
+                if (lower.includes('japan')) {
+                    return "🌍 The capital of Japan is Tokyo. It's the world's most populous metropolis and a center for technology and innovation.";
+                }
+                return "🌍 I can help with geography questions! Ask me about specific countries and their capitals.";
+            }
+            
+            // Greetings
+            else if (lower.match(/hello|hi|hey|good morning|good afternoon|good evening/i)) {
+                const responses = [
+                    "Hello! 👋 How can I assist you today? I can help with general knowledge, calculations, translations, weather, and much more!",
+                    "Hi there! 🌟 I'm iKnow, ready to help with your questions. What would you like to know?",
+                    "Hey! 👋 Great to hear from you. I'm here to help with information, tips, and answers. What can I do for you?"
+                ];
+                return pickRandom(responses);
+            }
+            
+            // Time / Date
+            else if (lower.match(/time|date|day|month|year/i)) {
+                const now = new Date();
+                return `🕐 Current time is ${now.toLocaleTimeString()}.\n📅 Date: ${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+            }
+            
+            // Thanks
+            else if (lower.match(/thank|thanks|appreciate/i)) {
+                const responses = [
+                    "You're very welcome! 😊 I'm here whenever you need assistance. Have a great day!",
+                    "My pleasure! 🌟 Feel free to ask if you need anything else.",
+                    "Anytime! 👍 I'm happy I could help. Come back anytime you have questions!"
+                ];
+                return pickRandom(responses);
+            }
+            
+            // Math / Calculation
+            else if (lower.match(/calculate|math|plus|minus|times|divided|square|sqrt/i)) {
+                return "🧮 I can help with calculations! For complex math, try asking step by step. For example: 'What is 15% of 200?' or 'Convert 5 feet to meters.'";
+            }
+            
+            // Jokes
+            else if (lower.match(/joke|funny|laugh|humor/i)) {
+                const jokes = [
+                    "Why don't scientists trust atoms? Because they make up everything! 😄",
+                    "Why did the scarecrow win an award? He was outstanding in his field! 🌾",
+                    "Why don't eggs tell jokes? They'd crack each other up! 🥚",
+                    "What do you call a fake noodle? An impasta! 🍝"
+                ];
+                return pickRandom(jokes);
+            }
+            
+            // Name
+            else if (lower.match(/your name|who are you|what are you/i)) {
+                return "I'm iKnow, your AI assistant! 🤖 I can help answer questions, provide information, give tips, and chat about various topics. No signup required - I'm completely free to use!";
+            }
+            
+            // Help
+            else if (lower.match(/help|assist|support|what can you do/i)) {
+                return "🤝 I can help you with:\n\n• Weather updates\n• General knowledge\n• Health & fitness tips\n• Currency conversion\n• Time & date info\n• Geography questions\n• Quick calculations\n• And much more!\n\nJust ask me anything!";
+            }
+            
+            // Goodbye
+            else if (lower.match(/bye|goodbye|see you|later/i)) {
+                return "Goodbye! 👋 Thanks for chatting with me. Have a wonderful day and come back anytime you need help!";
+            }
+            
+            // Default response with variety
+            else {
+                const defaults = [
+                    "That's an interesting question! While I'm processing that, did you know I can also help with weather updates, currency conversion, health tips, and general knowledge? Feel free to ask anything specific!",
+                    "Great question! 🎯 I can help with that. I specialize in weather, health tips, general knowledge, and more. Could you tell me more about what you'd like to know?",
+                    "I'm on it! 💡 In the meantime, feel free to ask me about the weather, health tips, or geography. I'm here to help!",
+                    "Interesting! 🤔 I have information on various topics like weather, health, travel, and general knowledge. What would you like to explore?"
+                ];
+                return pickRandom(defaults);
+            }
+        }
+
+        // Utility: Pick random from array
+        function pickRandom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // Utility: Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // SETTINGS & API FUNCTIONS
+        // ============================================
+        
+        function loadSettings() {
+            // Pre-configured Kimi API key
+            const DEFAULT_KIMI_KEY = 'sk-kimi-Fi11uPa8u0yza2DBk1c0heylR0JgoF7v3lq2rASquGAbES7QuwZoUmM4qZNNN2Ib';
+            
+            // Default to OFFLINE mode since CORS blocks direct API calls
+            // Users can enable AI mode if they use a CORS extension or proxy
+            const savedMode = localStorage.getItem('iknow_ai_mode');
+            aiMode = savedMode === 'true'; // Default OFF (safer)
+            
+            // Use stored key or default to pre-configured Kimi key
+            apiKey = localStorage.getItem('iknow_api_key') || DEFAULT_KIMI_KEY;
+            selectedModel = localStorage.getItem('iknow_model') || 'kimi-k2-turbo-preview';
+            
+            // Save defaults if not already saved
+            if (!localStorage.getItem('iknow_api_key')) {
+                localStorage.setItem('iknow_api_key', DEFAULT_KIMI_KEY);
+            }
+            
+            // Update UI
+            document.getElementById('ai-toggle').checked = aiMode;
+            document.getElementById('api-key-input').value = apiKey;
+            document.getElementById('model-select').value = selectedModel;
+            
+            updateAIModeUI();
+        }
+
+        function openSettings() {
+            document.getElementById('settings-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function toggleAIMode() {
+            aiMode = document.getElementById('ai-toggle').checked;
+            localStorage.setItem('iknow_ai_mode', aiMode);
+            updateAIModeUI();
+        }
+
+        function updateAIModeUI() {
+            const toggleBg = document.getElementById('ai-toggle-bg');
+            const toggleDot = document.getElementById('ai-toggle-dot');
+            const apiSection = document.getElementById('api-key-section');
+            const modelSection = document.getElementById('model-section');
+            const testBtn = document.getElementById('test-api-btn');
+            const statusDot = document.getElementById('api-status-dot');
+            const statusText = document.getElementById('api-status-text');
+            const modeLabel = document.getElementById('ai-mode-label');
+            
+            if (aiMode) {
+                toggleBg.classList.remove('bg-gray-700');
+                toggleBg.classList.add('bg-indigo-600');
+                toggleDot.classList.add('translate-x-5');
+                apiSection.classList.remove('opacity-50', 'pointer-events-none');
+                modelSection.classList.remove('opacity-50', 'pointer-events-none');
+                testBtn.disabled = !apiKey;
+                modeLabel.textContent = 'Kimi AI Ready (CORS Limited)';
+                
+                if (apiKey) {
+                    statusDot.className = 'w-2 h-2 rounded-full bg-yellow-500';
+                    statusText.textContent = 'AI Mode Ready - Will use Kimi AI';
+                } else {
+                    statusDot.className = 'w-2 h-2 rounded-full bg-red-500';
+                    statusText.textContent = 'AI Mode - API Key Required';
+                }
+            } else {
+                toggleBg.classList.add('bg-gray-700');
+                toggleBg.classList.remove('bg-indigo-600');
+                toggleDot.classList.remove('translate-x-5');
+                apiSection.classList.add('opacity-50', 'pointer-events-none');
+                modelSection.classList.add('opacity-50', 'pointer-events-none');
+                testBtn.disabled = true;
+                modeLabel.textContent = 'Offline Mode';
+                statusDot.className = 'w-2 h-2 rounded-full bg-gray-500';
+                statusText.textContent = 'Offline Mode - Using predefined responses';
+            }
+        }
+
+        function saveApiKey() {
+            apiKey = document.getElementById('api-key-input').value.trim();
+            localStorage.setItem('iknow_api_key', apiKey);
+            updateAIModeUI();
+        }
+
+        function saveModel() {
+            selectedModel = document.getElementById('model-select').value;
+            localStorage.setItem('iknow_model', selectedModel);
+            updateAIModeUI();
+        }
+
+        function showCorsSolution() {
+            document.getElementById('cors-solution').classList.remove('hidden');
+        }
+
+        async function testApiKey() {
+            const btn = document.getElementById('test-api-btn');
+            const statusDot = document.getElementById('api-status-dot');
+            const statusText = document.getElementById('api-status-text');
+            const corsWarning = document.getElementById('cors-warning');
+            
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            statusDot.className = 'w-2 h-2 rounded-full bg-yellow-500 animate-pulse';
+            statusText.textContent = 'Testing Kimi connection...';
+            corsWarning.classList.add('hidden');
+            
+            try {
+                const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: selectedModel,
+                        messages: [{ role: 'user', content: 'Say "Kimi AI Connected!"' }],
+                        max_tokens: 20
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Kimi API Test Success:', data);
+                    statusDot.className = 'w-2 h-2 rounded-full bg-green-500';
+                    statusText.textContent = 'Connected! Kimi AI is ready.';
+                    btn.textContent = 'Test Passed ✓';
+                    corsWarning.classList.add('hidden');
+                    setTimeout(() => {
+                        btn.textContent = 'Test Connection';
+                        btn.disabled = false;
+                    }, 2000);
+                } else {
+                    const errorData = await response.text();
+                    console.error('Kimi API Error Response:', errorData);
+                    let errorMsg = 'API Error';
+                    try {
+                        const parsed = JSON.parse(errorData);
+                        errorMsg = parsed.error?.message || `HTTP ${response.status}`;
+                    } catch(e) {
+                        errorMsg = `HTTP ${response.status}: ${errorData.substring(0, 100)}`;
+                    }
+                    throw new Error(errorMsg);
+                }
+            } catch (err) {
+                console.error('Kimi API Test Failed:', err);
+                statusDot.className = 'w-2 h-2 rounded-full bg-red-500';
+                let errorMsg = err.message;
+                if (err.message.includes('Failed to fetch') || err.name === 'TypeError') {
+                    errorMsg = 'CORS Error - Browser blocked the request';
+                    corsWarning.classList.remove('hidden');
+                }
+                statusText.textContent = 'Error: ' + errorMsg.substring(0, 100);
+                btn.textContent = 'Test Failed ✗';
+                setTimeout(() => {
+                    btn.textContent = 'Test Connection';
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // Call Kimi API
+        async function callKimiAPI(userMessage) {
+            if (!apiKey) {
+                throw new Error('No API key configured');
+            }
+            
+            try {
+                const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: selectedModel,
+                        messages: [
+                            { role: 'system', content: 'You are iKnow, a helpful AI assistant. Keep responses concise, friendly and conversational.' },
+                            { role: 'user', content: userMessage }
+                        ],
+                        max_tokens: 800,
+                        temperature: 0.7
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    console.error('Kimi API Error:', data);
+                    throw new Error(data.error?.message || `HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    throw new Error('Invalid API response format');
+                }
+                
+                return data.choices[0].message.content;
+            } catch (err) {
+                console.error('Kimi API Call Failed:', err);
+                throw err;
+            }
+        }
+
+        // Modified generateAiResponse to use API when enabled
+        async function getAIResponse(input) {
+            if (aiMode && apiKey && !isApiLoading) {
+                try {
+                    isApiLoading = true;
+                    const response = await callKimiAPI(input);
+                    isApiLoading = false;
+                    return response;
+                } catch (err) {
+                    console.error('Kimi API Error:', err);
+                    isApiLoading = false;
+                    // Show specific error message
+                    const errorMsg = err.message || 'Unknown error';
+                    if (err.message.includes('Failed to fetch') || err.name === 'TypeError') {
+                        // Show CORS warning in settings
+                        const corsWarning = document.getElementById('cors-warning');
+                        if (corsWarning) corsWarning.classList.remove('hidden');
+                        return generateAiResponse(input) + '\n\n_(⚠️ CORS Error: Kimi API blocked browser request. Switch to Offline Mode or use a CORS extension.)_';
+                    }
+                    return generateAiResponse(input) + '\n\n_(API Error: ' + errorMsg + ')_';
+                }
+            }
+            return generateAiResponse(input);
+        }
+    </script>
+</body>
+
+</html>
