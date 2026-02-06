@@ -14,7 +14,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: #0f172a;
+            background: #000000;
             overflow-y: auto;
             overflow-x: hidden;
         }
@@ -30,14 +30,14 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.6);
+            background: rgba(255, 204, 0, 0.6);
             border-radius: 3px;
         }
 
         /* ============================================
            DESKTOP: iPhone 17 Pro Max Frame
            ============================================ */
-        
+
         .phone-frame {
             position: relative;
             width: 400px;
@@ -74,7 +74,7 @@
             background: linear-gradient(145deg, #8a8a8a, #5a5a5a);
             border-radius: 2px 0 0 2px;
             z-index: -1;
-            box-shadow: -1px 0 2px rgba(0,0,0,0.3);
+            box-shadow: -1px 0 2px rgba(0, 0, 0, 0.3);
         }
 
         .action-button {
@@ -114,7 +114,7 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
         /* Dynamic Island */
@@ -132,7 +132,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         .dynamic-island .camera {
@@ -294,8 +294,9 @@
         }
 
         .channel-btn.active {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
+            background: #ffcc00;
+            color: #000000;
+            box-shadow: 0 10px 25px -5px rgba(255, 204, 0, 0.5);
         }
 
         /* Voice Button Animations */
@@ -383,7 +384,7 @@
         /* ============================================
            MOBILE: Fullscreen App Mode
            ============================================ */
-        
+
         @media (max-width: 640px) {
             body {
                 height: 100vh;
@@ -429,12 +430,16 @@
             }
 
             /* Hide fake status bar on mobile */
-            .phone-frame > .absolute.top-0.w-full.h-14 {
+            .phone-frame>.absolute.top-0.w-full.h-14 {
                 display: none;
             }
 
             /* Fullscreen screens */
-            #screen-app, #screen-sms, #screen-ivr, #screen-web, #screen-ussd {
+            #screen-app,
+            #screen-sms,
+            #screen-ivr,
+            #screen-web,
+            #screen-ussd {
                 padding-top: 0;
                 height: 100%;
                 padding-bottom: 0;
@@ -529,20 +534,21 @@
     <!-- Background Elements -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div
-            class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse">
+            class="absolute top-0 left-1/4 w-96 h-96 bg-[#ffcc00] rounded-full mix-blend-screen filter blur-3xl opacity-10 animate-pulse">
         </div>
-        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-[#ffcc00] rounded-full mix-blend-screen filter blur-3xl opacity-10 animate-pulse"
             style="animation-delay: 2s"></div>
     </div>
 
     <!-- Header -->
     <div class="text-center mt-2 mb-2 sm:mb-4 md:mb-6 z-10 px-2 flex-shrink-0">
-        <h1
-            class="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-0.5 sm:mb-1 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/MTN_Logo.svg" alt="MTN Logo"
+            class="h-12 mx-auto mb-2 bg-white rounded-lg p-1">
+        <h1 class="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-0.5 sm:mb-1 text-[#ffcc00]">
             iKnow AI
         </h1>
         <p class="text-gray-400 text-xs sm:text-sm md:text-base hidden sm:block">Universal Access Intelligence</p>
-        <p class="text-gray-500 text-[10px] sm:text-xs mt-0.5 hidden sm:block">🎙️ Voice Enabled</p>
+        <p class="text-[#ffcc00] text-[10px] sm:text-xs mt-0.5 hidden sm:block">🎙️ Voice Enabled</p>
     </div>
 
 
@@ -611,14 +617,14 @@
                 <!-- APP CHANNEL -->
                 <div id="screen-app" class="screen active flex-col h-full bg-gray-900 pt-0 sm:pt-16 pb-4">
                     <!-- App Header -->
-                    <div class="px-4 py-3 bg-indigo-600 flex items-center gap-3 shadow-lg">
-                        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                            <i data-lucide="brain" class="w-6 h-6 text-white"></i>
+                    <div class="px-4 py-3 bg-[#ffcc00] flex items-center gap-3 shadow-lg">
+                        <div class="w-10 h-10 rounded-full bg-black/20 flex items-center justify-center">
+                            <i data-lucide="brain" class="w-6 h-6 text-black"></i>
                         </div>
                         <div class="flex-1">
-                            <h3 class="font-semibold text-white">iKnow</h3>
-                            <p class="text-xs text-indigo-200 flex items-center gap-1">
-                                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                            <h3 class="font-semibold text-black">iKnow</h3>
+                            <p class="text-xs text-black/70 flex items-center gap-1">
+                                <span class="w-2 h-2 bg-black rounded-full animate-pulse"></span>
                                 Online
                             </p>
                         </div>
@@ -633,8 +639,8 @@
 
                         <div class="flex items-start gap-2 message-enter">
                             <div
-                                class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="bot" class="w-4 h-4"></i>
+                                class="w-8 h-8 rounded-full bg-[#ffcc00] flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="bot" class="w-4 h-4 text-black"></i>
                             </div>
                             <div
                                 class="bg-gray-800 rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%] text-sm text-gray-200">
@@ -655,13 +661,13 @@
                                 </div>
                                 <div class="flex flex-wrap gap-2">
                                     <button onclick="sendAppQuick('Weather in New York')"
-                                        class="px-3 py-1.5 bg-indigo-600/30 border border-indigo-500/50 rounded-full text-xs text-indigo-300 hover:bg-indigo-600/50 transition">Weather
+                                        class="px-3 py-1.5 bg-[#ffcc00]/10 border border-[#ffcc00]/50 rounded-full text-xs text-[#ffcc00] hover:bg-[#ffcc00]/20 transition">Weather
                                         in New York</button>
                                     <button onclick="sendAppQuick('Convert $50 to EUR')"
-                                        class="px-3 py-1.5 bg-indigo-600/30 border border-indigo-500/50 rounded-full text-xs text-indigo-300 hover:bg-indigo-600/50 transition">Convert
+                                        class="px-3 py-1.5 bg-[#ffcc00]/10 border border-[#ffcc00]/50 rounded-full text-xs text-[#ffcc00] hover:bg-[#ffcc00]/20 transition">Convert
                                         $50 to EUR</button>
                                     <button onclick="sendAppQuick('Health tips')"
-                                        class="px-3 py-1.5 bg-indigo-600/30 border border-indigo-500/50 rounded-full text-xs text-indigo-300 hover:bg-indigo-600/50 transition">Health
+                                        class="px-3 py-1.5 bg-[#ffcc00]/10 border border-[#ffcc00]/50 rounded-full text-xs text-[#ffcc00] hover:bg-[#ffcc00]/20 transition">Health
                                         tips</button>
                                 </div>
                             </div>
@@ -683,7 +689,7 @@
                                 </button>
                             </div>
                             <button onclick="sendAppMessage()"
-                                class="p-2 bg-indigo-600 rounded-full text-white hover:bg-indigo-700 transition shadow-lg shadow-indigo-600/30">
+                                class="p-2 bg-[#ffcc00] rounded-full text-black hover:bg-[#e6b800] transition shadow-lg shadow-[#ffcc00]/30">
                                 <i data-lucide="send" class="w-5 h-5"></i>
                             </button>
                         </div>
@@ -719,10 +725,10 @@
                                 <div class="bg-gray-800 p-3 border-t border-gray-700">
                                     <div class="flex gap-2">
                                         <input type="text" id="ussd-input" placeholder="Enter choice..."
-                                            class="flex-1 bg-black border border-gray-600 rounded px-3 py-2 text-white text-sm outline-none focus:border-indigo-500"
+                                            class="flex-1 bg-black border border-gray-600 rounded px-3 py-2 text-white text-sm outline-none focus:border-[#ffcc00]"
                                             onkeypress="if(event.key==='Enter') handleUssd()">
                                         <button onclick="handleUssd()"
-                                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium">SEND</button>
+                                            class="bg-[#ffcc00] hover:bg-[#e6b800] text-black px-4 py-2 rounded text-sm font-bold">SEND</button>
                                     </div>
                                     <div class="flex justify-between mt-2 text-xs text-gray-500">
                                         <button onclick="resetUssd()" class="hover:text-white">Cancel</button>
@@ -766,9 +772,9 @@
                 <div id="screen-sms" class="screen flex-col h-full bg-gray-900 pt-16">
                     <!-- SMS Header -->
                     <div class="px-4 py-3 bg-gray-800 border-b border-gray-700 flex items-center gap-3">
-                        <button class="text-indigo-400"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
-                        <div class="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
-                            <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+                        <button class="text-[#ffcc00]"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                        <div class="w-10 h-10 rounded-full bg-[#ffcc00] flex items-center justify-center">
+                            <i data-lucide="bot" class="w-5 h-5 text-black"></i>
                         </div>
                         <div class="flex-1">
                             <h3 class="font-semibold text-white">iKnow AI</h3>
@@ -1041,15 +1047,15 @@
                             <!-- Quick Actions -->
                             <div class="flex flex-wrap gap-2 pl-11">
                                 <button onclick="sendWebQuick('Weather in New York')"
-                                    class="px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-full text-xs text-indigo-600 hover:bg-indigo-100 transition">
+                                    class="px-3 py-1.5 bg-[#ffcc00]/10 border border-[#ffcc00]/50 rounded-full text-xs text-black hover:bg-[#ffcc00]/20 transition">
                                     🌤️ Weather
                                 </button>
                                 <button onclick="sendWebQuick('Tell me a joke')"
-                                    class="px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-full text-xs text-purple-600 hover:bg-purple-100 transition">
+                                    class="px-3 py-1.5 bg-[#ffcc00]/10 border border-[#ffcc00]/50 rounded-full text-xs text-black hover:bg-[#ffcc00]/20 transition">
                                     😂 Joke
                                 </button>
                                 <button onclick="sendWebQuick('Health tips')"
-                                    class="px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-xs text-green-600 hover:bg-green-100 transition">
+                                    class="px-3 py-1.5 bg-[#ffcc00]/10 border border-[#ffcc00]/50 rounded-full text-xs text-black hover:bg-[#ffcc00]/20 transition">
                                     💡 Health Tips
                                 </button>
                             </div>
@@ -1096,7 +1102,7 @@
                                     oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 80) + 'px'"
                                     onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendWebMessage(); }"></textarea>
                                 <button onclick="sendWebMessage()"
-                                    class="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition flex-shrink-0 shadow-md">
+                                    class="p-2 bg-[#ffcc00] hover:bg-[#e6b800] text-black rounded-full transition flex-shrink-0 shadow-md">
                                     <i data-lucide="send" class="w-4 h-4"></i>
                                 </button>
                             </div>
@@ -1605,7 +1611,7 @@
                     if (sender === 'user') {
                         div.className = 'flex items-start gap-2 justify-end message-enter';
                         div.innerHTML = `
-                    <div class="bg-indigo-600 rounded-2xl rounded-tr-none px-4 py-3 max-w-[80%] text-sm text-white shadow-md">
+                    <div class="bg-[#ffcc00] rounded-2xl rounded-tr-none px-4 py-3 max-w-[80%] text-sm text-black shadow-md">
                         ${escapeHtml(text)}
                     </div>
                     <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
@@ -1615,8 +1621,8 @@
                     } else {
                         div.className = 'flex items-start gap-2 message-enter';
                         div.innerHTML = `
-                    <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
-                        <i data-lucide="bot" class="w-4 h-4"></i>
+                    <div class="w-8 h-8 rounded-full bg-[#ffcc00] flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="bot" class="w-4 h-4 text-black"></i>
                     </div>
                     <div class="bg-gray-800 rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%] text-sm text-gray-200 shadow-md">
                         ${escapeHtml(text)}
@@ -1635,8 +1641,8 @@
                     typing.id = 'typing-indicator';
                     typing.className = 'flex items-start gap-2 message-enter';
                     typing.innerHTML = `
-                <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="bot" class="w-4 h-4"></i>
+                <div class="w-8 h-8 rounded-full bg-[#ffcc00] flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="bot" class="w-4 h-4 text-black"></i>
                 </div>
                 <div class="bg-gray-800 rounded-2xl rounded-tl-none px-4 py-3 flex gap-1">
                     <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
@@ -1753,9 +1759,9 @@ Reply with number (1-5):`;
                     const userDiv = document.createElement('div');
                     userDiv.className = 'flex justify-end message-enter';
                     userDiv.innerHTML = `
-                <div class="sms-bubble sms-sent bg-indigo-600 text-white px-4 py-2 rounded-2xl rounded-br-none text-sm max-w-[85%] shadow-md">
+                <div class="sms-bubble sms-sent bg-[#ffcc00] text-black px-4 py-2 rounded-2xl rounded-br-none text-sm max-w-[85%] shadow-md">
                     ${escapeHtml(message)}
-                    <div class="text-[10px] text-indigo-200 mt-1 text-right flex items-center justify-end gap-1">
+                    <div class="text-[10px] text-black/60 mt-1 text-right flex items-center justify-end gap-1">
                         ${time} <i data-lucide="check-check" class="w-3 h-3"></i>
                     </div>
                 </div>
